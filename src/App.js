@@ -3,45 +3,38 @@ import List from './components/List';
 import './styles.css';
 import { items } from './data';
 
+const data = items.map((value) => {
+  return {
+    value: value,
+    position: 'left',
+    checked: false,
+  };
+});
+
 export default function App() {
-  const [leftList, setLeftList] = useState([]);
-  const [leftSelected, setLeftSelected] = useState([]);
-  const [rightList, setRightList] = useState([]);
-  const [rightSelected, setRightSelected] = useState([]);
+  const [list, setList] = useState(data);
 
-  useEffect(() => {
-    setLeftList(items);
-    setRightList([]);
-  }, []);
-
-  function leftHandler(selected) {
-    setLeftSelected(selected);
-  }
-
-  function rightHandler(selected) {
-    setRightSelected(selected);
-  }
-
-  function moveLeft() {
-    setRightList((prev) =>
-      prev.filter((value) => !rightSelected.includes(value))
+  function selectHandle(element, checked) {
+    setList((prev) =>
+      prev.map((value) => {
+        if (element === value) {
+          value.checked = checked;
+        }
+        return value;
+      })
     );
-    setLeftList((prev) => {
-      const sort = [...prev, ...rightSelected];
-      sort.sort();
-      return sort;
-    });
   }
 
-  function moveRight() {
-    setLeftList((prev) =>
-      prev.filter((value) => !leftSelected.includes(value))
+  function move(from, to) {
+    setList((prev) =>
+      prev.map((elem) => {
+        if (elem.checked && elem.position === from) {
+          elem.position = to;
+          elem.checked = false;
+        }
+        return elem;
+      })
     );
-    setRightList((prev) => {
-      const sort = [...prev, ...leftSelected];
-      sort.sort();
-      return sort;
-    });
   }
 
   return (
@@ -61,7 +54,10 @@ export default function App() {
           columnGap: '1rem',
         }}
       >
-        <List list={leftList} onChange={leftHandler} />
+        <List
+          list={list.filter((value) => value.position === 'left')}
+          onChange={selectHandle}
+        />
         <div
           style={{
             display: 'flex',
@@ -70,10 +66,25 @@ export default function App() {
             justifyContent: 'center',
           }}
         >
-          <button onClick={moveRight}>&gt;</button>
-          <button onClick={moveLeft}>&lt;</button>
+          <button
+            onClick={() => {
+              move('left', 'right');
+            }}
+          >
+            &gt;
+          </button>
+          <button
+            onClick={() => {
+              move('right', 'left');
+            }}
+          >
+            &lt;
+          </button>
         </div>
-        <List list={rightList} onChange={rightHandler} />
+        <List
+          list={list.filter((value) => value.position !== 'left')}
+          onChange={selectHandle}
+        />
       </div>
     </div>
   );

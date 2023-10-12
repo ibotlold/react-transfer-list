@@ -1,27 +1,11 @@
 import { useEffect, useState } from "react";
 
 export default function List({ list, onChange }) {
-  const [checked, setChecked] = useState([]);
-
-  function handleCheckbox(e) {
-    const checked = e.target.checked;
-    const element = +e.target.name;
-    if (checked) {
-      setChecked((prev) => [...prev, element]);
-    } else {
-      setChecked((prev) => prev.filter((value) => value !== element));
+  function handle(element, checked) {
+    if (onChange !== undefined) {
+      onChange(element, checked)
     }
   }
-
-  useEffect(() => {
-    if (onChange !== undefined) {
-      onChange(checked);
-    }
-  }, [checked, onChange]);
-
-  useEffect(() => {
-    setChecked([]);
-  }, [list]);
 
   return (
     <ul
@@ -34,15 +18,14 @@ export default function List({ list, onChange }) {
       }}
     >
       {list.map((element, index) => (
-        <li key={element}>
+        <li key={element.value}>
           <label>
             <input
-              key={element}
               type="checkbox"
-              name={element}
-              onChange={handleCheckbox}
+              onChange={(e) => {handle(element, e.target.checked)}}
+              checked={element.checked}
             />
-            {element}
+            {element.value}
           </label>
         </li>
       ))}
